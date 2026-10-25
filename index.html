@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FamPrep · What's for dinner, for every goal</title>
+<meta name="description" content="For parents with a nutrition goal who cook one dinner for the whole family. FamPrep plans the week and sizes every person's plate to their own goal. Coming soon to iPhone.">
+<meta name="theme-color" content="#f8f8f5">
+<meta name="color-scheme" content="only light">
+<meta property="og:title" content="FamPrep · What's for dinner, for every goal">
+<meta property="og:description" content="One family dinner, every plate sized to the person eating it. Coming soon to iPhone.">
+<meta property="og:url" content="https://famprep.app/">
+<meta property="og:image" content="https://famprep.app/apple-touch-icon.png">
+<link rel="icon" href="favicon.ico?v=3" sizes="32x32 48x48">
+<link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap">
+<style>
+  /* FamPrep brand tokens: a clean, well-lit kitchen. Source of truth: the FamPrep design system (docs/brand.md).
+     The landing page is always daylight, whatever the device setting; the app follows the device. */
+  :root {
+    color-scheme: only light;
+    --daylight: #f8f8f5; --tile: #ffffff; --counter: #efefea; --grout: #e3e4de; --stainless: #676e69;
+    --slate: #59615c; --ink: #1a201d; --basil: #1e7a53; --basil-press: #17633f; --on-basil: #ffffff;
+    --basil-tint: #e4f1ea; --oak: #e8dcc6; --error: #b3261e; --plate-shadow: #d9ccb3;
+    --food-tomato: #f0603e; --food-corn: #f6b93b; --food-rice: #f4ebda; --food-rice-edge: #e2d4b8;
+    --food-bean: #4b3328; --food-chicken: #c98a45; --food-chicken-edge: #ad7234; --food-herb: #2fa36b;
+    --shadow-lift: 0 1px 2px rgba(26,32,29,.06), 0 8px 24px rgba(26,32,29,.06);
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
+    --space-12: 48px; --space-16: 64px; --space-24: 96px;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px; --radius-full: 999px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--daylight); color: var(--ink); font: 17px/26px var(--sans); -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, p { margin: 0; }
+  h1, h2, h3 { font-weight: 600; text-wrap: balance; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--basil); outline-offset: 2px; border-radius: 4px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--space-6); }
+  .label { font-family: var(--mono); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--slate); }
+
+  .skip { position: absolute; left: var(--space-4); top: -60px; background: var(--ink); color: var(--daylight); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); text-decoration: none; z-index: 2; }
+  .skip:focus { top: var(--space-3); }
+
+  /* SiteHeader */
+  .siteheader { border-bottom: 1px solid var(--grout); }
+  .siteheader .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 68px; }
+  .brand { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 20px; font-weight: 600; letter-spacing: -0.02em; text-decoration: none; }
+  .brand img { width: 30px; height: 30px; border-radius: 7px; box-shadow: 0 0 0 1px var(--grout); }
+  .siteheader nav { display: flex; align-items: center; gap: var(--space-6); }
+  .siteheader nav a:not(.btn) { color: var(--slate); text-decoration: none; font-size: 15px; }
+  .siteheader nav a:not(.btn):hover { color: var(--ink); }
+
+  /* Button */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 48px; padding: 0 var(--space-6);
+    border: 1px solid transparent; border-radius: var(--radius-md); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+    text-decoration: none; white-space: nowrap; background: var(--basil); color: var(--on-basil); transition: background-color .15s ease-out; }
+  .btn:hover { background: var(--basil-press); }
+  .btn-sm { min-height: 36px; padding: 0 var(--space-4); font-size: 15px; }
+  .btn[aria-busy="true"] { cursor: progress; opacity: .75; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: center; padding: var(--space-16) 0 var(--space-24); }
+  h1 { font-size: clamp(42px, 5.4vw, 64px); line-height: 1.02; letter-spacing: -0.035em; }
+  h1 span { display: block; color: var(--slate); font-weight: 500; }
+  .lede { margin: var(--space-6) 0 var(--space-8); color: var(--slate); font-size: 19px; line-height: 29px; max-width: 32em; }
+
+  /* EmailSignup */
+  .signup { max-width: 460px; }
+  .signup label[for] { display: block; font-size: 16px; font-weight: 600; margin-bottom: var(--space-2); }
+  .signup .row { display: flex; gap: var(--space-2); }
+  .signup input[type=email] { flex: 1; min-width: 0; min-height: 48px; padding: 0 var(--space-4); font: inherit; font-size: 17px; color: var(--ink);
+    background: var(--tile); border: 1px solid var(--stainless); border-radius: var(--radius-md); }
+  .signup input[type=email]::placeholder { color: var(--slate); }
+  .signup .note { margin-top: var(--space-2); font-size: 15px; line-height: 22px; color: var(--slate); }
+  .signup.done .row, .signup.done label[for] { display: none; }
+  .signup.done .note { margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; color: var(--ink); }
+  .signup.error input[type=email] { border-color: var(--error); }
+  .signup.error .note { color: var(--error); }
+  .hp { position: absolute; left: -9999px; }
+
+  /* The board */
+  .board svg { display: block; width: 100%; height: auto; }
+  .board .oak { fill: var(--oak); }
+  .board .who { font-family: var(--sans); font-size: 21px; font-weight: 600; fill: var(--ink); letter-spacing: -0.01em; }
+  .board .amt { font-family: var(--mono); font-size: 15px; font-weight: 500; fill: var(--ink); opacity: .78; }
+  .board figcaption { margin-top: var(--space-4); text-align: center; font-size: 15px; color: var(--slate); }
+  .board figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* Sections */
+  section.block { border-top: 1px solid var(--grout); padding: var(--space-16) 0; }
+  h2 { font-size: clamp(30px, 3.4vw, 40px); line-height: 1.12; letter-spacing: -0.025em; }
+  .split { display: grid; grid-template-columns: 1fr 1.3fr; gap: var(--space-16); }
+  .prose { max-width: 62ch; }
+  .prose > p { color: var(--slate); }
+  .people { list-style: none; margin: var(--space-6) 0; padding: 0; }
+  .people li { display: grid; grid-template-columns: 8.5em 1fr; gap: var(--space-4); padding: var(--space-3) 0; border-top: 1px solid var(--grout); }
+  .people li:last-child { border-bottom: 1px solid var(--grout); }
+  .people b { font-weight: 600; }
+  .people span { color: var(--slate); }
+  .prose .pos { color: var(--ink); font-weight: 500; }
+
+  .week { list-style: none; padding: 0; margin: var(--space-8) 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  .week li { background: var(--tile); border-radius: var(--radius-lg); box-shadow: var(--shadow-lift); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); }
+  .week h3 { font-size: 20px; line-height: 28px; letter-spacing: -0.01em; }
+  .week p:last-child { color: var(--slate); font-size: 16px; line-height: 24px; }
+  .qty { align-self: flex-start; font-family: var(--mono); font-size: 14px; line-height: 22px; font-weight: 500; background: var(--counter); border-radius: var(--radius-sm); padding: 0 var(--space-2); }
+
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); }
+  .pair h3 { font-size: 24px; line-height: 32px; letter-spacing: -0.015em; margin: var(--space-2) 0 var(--space-3); }
+  .pair p:last-child { color: var(--slate); max-width: 46ch; }
+
+  .join { border-top: 1px solid var(--grout); padding: var(--space-24) 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: end; }
+  .join h2 { font-size: clamp(34px, 4vw, 48px); }
+  .join .prose { margin-top: var(--space-4); }
+
+  footer { border-top: 1px solid var(--grout); padding: var(--space-6) 0 var(--space-12); font-size: 15px; color: var(--slate); }
+  footer .wrap { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+
+  @media (max-width: 920px) {
+    .hero, .split, .pair, .join { grid-template-columns: 1fr; gap: var(--space-12); }
+    .hero { padding: var(--space-12) 0 var(--space-16); }
+    .week { grid-template-columns: 1fr; }
+    section.block { padding: var(--space-12) 0; }
+    .join { padding: var(--space-16) 0; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 var(--space-4); }
+    .siteheader nav a:not(.btn) { display: none; }
+    .signup .row { flex-direction: column; }
+    .signup input[type=email] { flex: none; }
+    .people li { grid-template-columns: 7em 1fr; gap: var(--space-3); }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#join-hero">Skip to the beta sign-up</a>
+<header class="siteheader">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="apple-touch-icon.png?v=3" width="30" height="30" alt="">FamPrep</a>
+    <nav aria-label="Site">
+      <a href="#how">How it works</a>
+      <a href="#kids">For kids</a>
+      <a class="btn btn-sm" href="#join">Join the beta</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <p class="label">iPhone beta coming soon</p>
+      <h1 style="margin-top: var(--space-4)">What's for dinner?<span>Sorted for the week, sized for everyone.</span></h1>
+      <p class="lede">FamPrep plans your family's dinners, writes one grocery list, and tells each person how much to put on their plate, based on their own goal. Kids included, without the calorie talk.</p>
+      <!-- Netlify Forms collects sign-ups (Netlify > Forms > beta). Both forms post to the same list. -->
+      <form class="signup" name="beta" method="POST" data-netlify="true" netlify-honeypot="company">
+        <input type="hidden" name="form-name" value="beta">
+        <input type="hidden" name="source" value="">
+        <p class="hp" aria-hidden="true"><label>Company <input name="company" tabindex="-1" autocomplete="off"></label></p>
+        <label for="join-hero">Get an invite to the iPhone beta</label>
+        <div class="row">
+          <input id="join-hero" type="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-describedby="note-hero">
+          <button class="btn" type="submit">Join the beta</button>
+        </div>
+        <p class="note" id="note-hero" role="status">One email when the beta opens. Nothing else.</p>
+      </form>
+    </div>
+
+    <figure class="board" style="margin:0">
+      <svg viewBox="0 0 560 650" role="img" aria-labelledby="board-title board-desc">
+        <title id="board-title">One dinner, four plates</title>
+        <desc id="board-desc">The same chipotle chicken rice bowl on four plates. Alex, who is cutting, gets 220 grams of chicken and 160 grams of rice. Sam, who is training, gets 180 grams of chicken and 140 grams of rice. Maya, 14, gets two palms of chicken and two fists of rice. Leo, 8, gets one palm of chicken and one fist of rice.</desc>
+        <defs>
+          <g id="food">
+            <ellipse cx="-14" cy="10" rx="42" ry="31" fill="var(--food-rice)" stroke="var(--food-rice-edge)" stroke-width="2"/>
+            <g fill="var(--food-chicken)" stroke="var(--food-chicken-edge)" stroke-width="1.5">
+              <rect x="6" y="-40" width="30" height="16" rx="7" transform="rotate(18 21 -32)"/>
+              <rect x="22" y="-18" width="30" height="16" rx="7" transform="rotate(-12 37 -10)"/>
+              <rect x="-4" y="-22" width="28" height="15" rx="7" transform="rotate(32 10 -14)"/>
+              <rect x="20" y="4" width="28" height="15" rx="7" transform="rotate(8 34 11)"/>
+            </g>
+            <g fill="var(--food-bean)">
+              <ellipse cx="-40" cy="-22" rx="6" ry="4.2" transform="rotate(-20 -40 -22)"/>
+              <ellipse cx="-28" cy="-32" rx="6" ry="4.2" transform="rotate(25 -28 -32)"/>
+              <ellipse cx="-46" cy="-8" rx="6" ry="4.2"/>
+              <ellipse cx="-32" cy="-16" rx="6" ry="4.2" transform="rotate(40 -32 -16)"/>
+              <ellipse cx="-18" cy="-28" rx="6" ry="4.2" transform="rotate(-35 -18 -28)"/>
+            </g>
+            <g fill="var(--food-corn)"><circle cx="-24" cy="18" r="4"/><circle cx="-12" cy="26" r="4"/><circle cx="-34" cy="28" r="4"/><circle cx="-2" cy="18" r="4"/></g>
+            <g fill="var(--food-tomato)"><circle cx="-20" cy="4" r="4.5"/><circle cx="-4" cy="6" r="4.5"/><circle cx="-36" cy="10" r="4.5"/></g>
+            <g fill="var(--food-herb)"><circle cx="-12" cy="-2" r="2.6"/><circle cx="-28" cy="2" r="2.6"/><circle cx="2" cy="28" r="2.6"/></g>
+          </g>
+          <g id="plate">
+            <circle r="106" cy="4" fill="var(--plate-shadow)"/>
+            <circle r="106" fill="var(--tile)"/>
+            <circle r="84" fill="none" stroke="var(--grout)" stroke-width="2"/>
+          </g>
+        </defs>
+        <rect class="oak" width="560" height="650" rx="20"/>
+        <use href="#plate" x="140" y="146"/><use href="#food" transform="translate(140 146) scale(1.42)"/>
+        <use href="#plate" x="420" y="146"/><use href="#food" transform="translate(420 146) scale(1.22)"/>
+        <use href="#plate" x="140" y="446"/><use href="#food" transform="translate(140 446) scale(1.14)"/>
+        <use href="#plate" x="420" y="446"/><use href="#food" transform="translate(420 446) scale(.84)"/>
+        <g text-anchor="middle">
+          <text class="who" x="140" y="284">Alex · cutting</text><text class="who" x="420" y="284">Sam · training</text>
+          <text class="amt" x="140" y="308">220 g chicken · 160 g rice</text><text class="amt" x="420" y="308">180 g chicken · 140 g rice</text>
+          <text class="who" x="140" y="584">Maya, 14</text><text class="who" x="420" y="584">Leo, 8</text>
+          <text class="amt" x="140" y="608">2 palms · 2 fists</text><text class="amt" x="420" y="608">1 palm · 1 fist</text>
+        </g>
+      </svg>
+      <figcaption><b>Tonight: chipotle chicken rice bowls.</b> One pot, four plates.</figcaption>
+    </figure>
+  </section>
+
+  <section class="block split">
+    <h2>The hard part isn't the recipe.</h2>
+    <div class="prose">
+      <p>It's 5:30, and dinner has to work for four different people:</p>
+      <ul class="people">
+        <li><b>You</b><span>are cutting, and would like to log dinner without guessing.</span></li>
+        <li><b>Your partner</b><span>is training, and needs more on the plate, not a different meal.</span></li>
+        <li><b>Your teen</b><span>has practice five days a week and is always starving.</span></li>
+        <li><b>Your youngest</b><span>would mostly like to know if there's pasta.</span></li>
+      </ul>
+      <p>Family meal planners give everyone the same serving. Macro apps plan for one person. <span class="pos">FamPrep cooks for the table and plates for the person.</span></p>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <h2>How a week goes</h2>
+    <ol class="week">
+      <li>
+        <p class="label">Sunday</p>
+        <h3>Plan the week</h3>
+        <span class="qty">3 min</span>
+        <p>FamPrep suggests dinners that fit everyone. Swap the ones you're not in the mood for, keep the ones you are.</p>
+      </li>
+      <li>
+        <p class="label">Shopping day</p>
+        <h3>One list</h3>
+        <span class="qty">1 trip</span>
+        <p>Every ingredient for the week, grouped by aisle and rounded to the packages stores actually sell. Send it to Reminders or any app.</p>
+      </li>
+      <li>
+        <p class="label">Weeknights</p>
+        <h3>Everyone's plate</h3>
+        <span class="qty">1 pot</span>
+        <p>Cook once with short steps and timers. Then each person's card says exactly what goes on their plate.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="block pair" id="kids">
+    <div>
+      <p class="label">For adults</p>
+      <h3>Numbers you can log</h3>
+      <p>Every amount comes from USDA nutrition data, never typed in by hand. Adults see grams, calories and macros for their own plate, ready for the tracker they already use.</p>
+    </div>
+    <div>
+      <p class="label">For kids</p>
+      <h3>Fed, not dieted</h3>
+      <p>Kids' plates use hand portions: a palm of chicken, a fist of rice. No calories, no weights, no weight-loss goals for anyone under 18. Parents can see the numbers privately.</p>
+    </div>
+  </section>
+
+  <section class="join" id="join">
+    <div>
+      <h2>Save a seat at the table.</h2>
+      <p class="prose" style="color: var(--slate)">FamPrep already plans dinner for our own family every week. Leave your email and we'll send you an invite when the iPhone beta opens.</p>
+    </div>
+    <form class="signup" name="beta" method="POST" data-netlify="true" netlify-honeypot="company">
+      <input type="hidden" name="form-name" value="beta">
+      <input type="hidden" name="source" value="">
+      <p class="hp" aria-hidden="true"><label>Company <input name="company" tabindex="-1" autocomplete="off"></label></p>
+      <label for="join-bottom">Your email</label>
+      <div class="row">
+        <input id="join-bottom" type="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-describedby="note-bottom">
+        <button class="btn" type="submit">Join the beta</button>
+      </div>
+      <p class="note" id="note-bottom" role="status">One email when the beta opens. Nothing else.</p>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 FamPrep</span>
+    <span>Made by a family that cooks one dinner a night.</span>
+  </div>
+</footer>
+<script>
+  // Where sign-ups come from (utm_source, else the referring site), for the beta's traffic test in docs/positioning.md.
+  const params = new URLSearchParams(location.search);
+  let source = params.get('utm_source') || '';
+  try { if (!source && document.referrer) source = new URL(document.referrer).hostname; } catch (e) {}
+  document.querySelectorAll('form.signup').forEach(form => {
+    form.elements.source.value = source || 'direct';
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const note = form.querySelector('.note');
+      const button = form.querySelector('button');
+      if (button.getAttribute('aria-busy') === 'true') return;
+      button.setAttribute('aria-busy', 'true');
+      button.textContent = 'Joining…';
+      form.classList.remove('error');
+      try {
+        const res = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form)).toString()
+        });
+        if (!res.ok) throw new Error(res.status);
+        form.classList.add('done');
+        note.textContent = "You're on the list. Watch your inbox for the invite.";
+      } catch (e) {
+        form.classList.add('error');
+        note.textContent = "That didn't go through. Please try again in a moment.";
+        button.removeAttribute('aria-busy');
+        button.textContent = 'Join the beta';
+      }
+    });
+  });
+</script>
+</body>
+</html>
