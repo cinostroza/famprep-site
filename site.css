@@ -1,0 +1,74 @@
+/* FamPrep brand tokens: a clean, well-lit kitchen. Source of truth: the FamPrep design system (docs/brand.md).
+   The website is always daylight, whatever the device setting; the app follows the device.
+   Shared by every page; page-specific styles stay in each page. */
+:root {
+  color-scheme: only light;
+  --daylight: #f8f8f5; --tile: #ffffff; --counter: #efefea; --grout: #e3e4de; --stainless: #676e69;
+  --slate: #59615c; --ink: #1a201d; --basil: #1e7a53; --basil-press: #17633f; --on-basil: #ffffff;
+  --basil-tint: #e4f1ea; --error: #b3261e;
+  --shadow-lift: 0 1px 2px rgba(26,32,29,.06), 0 8px 24px rgba(26,32,29,.06);
+  --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
+  --space-12: 48px; --space-16: 64px; --space-24: 96px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px; --radius-full: 999px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--daylight); color: var(--ink); font: 17px/26px var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-weight: 600; text-wrap: balance; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--basil); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--space-6); }
+.label { font-family: var(--mono); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--slate); }
+
+.skip { position: absolute; left: var(--space-4); top: -60px; background: var(--ink); color: var(--daylight); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); text-decoration: none; z-index: 2; }
+.skip:focus { top: var(--space-3); }
+
+/* SiteHeader */
+.siteheader { border-bottom: 1px solid var(--grout); }
+.siteheader .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 68px; }
+.brand { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 20px; font-weight: 600; letter-spacing: -0.02em; text-decoration: none; }
+.brand img { width: 30px; height: 30px; border-radius: 7px; box-shadow: 0 0 0 1px var(--grout); }
+.siteheader nav { display: flex; align-items: center; gap: var(--space-6); }
+.siteheader nav a:not(.btn) { color: var(--slate); text-decoration: none; font-size: 15px; }
+.siteheader nav a:not(.btn):hover, .siteheader nav a[aria-current="page"] { color: var(--ink); }
+
+/* Button */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 48px; padding: 0 var(--space-6);
+  border: 1px solid transparent; border-radius: var(--radius-md); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+  text-decoration: none; white-space: nowrap; background: var(--basil); color: var(--on-basil); transition: background-color .15s ease-out; }
+.btn:hover { background: var(--basil-press); }
+.btn-sm { min-height: 36px; padding: 0 var(--space-4); font-size: 15px; }
+.btn[aria-busy="true"] { cursor: progress; opacity: .75; }
+
+/* Footer */
+footer { border-top: 1px solid var(--grout); padding: var(--space-6) 0 var(--space-12); font-size: 15px; color: var(--slate); }
+footer .wrap { display: flex; justify-content: space-between; gap: var(--space-3) var(--space-6); flex-wrap: wrap; }
+footer nav { display: flex; gap: var(--space-6); }
+footer nav a { text-decoration: none; }
+footer nav a:hover { color: var(--ink); text-decoration: underline; }
+
+/* Document pages (privacy, support): one readable column */
+.doc { max-width: 68ch; padding: var(--space-12) 0 var(--space-16); }
+.doc h1 { font-size: clamp(34px, 4.4vw, 46px); line-height: 1.08; letter-spacing: -0.03em; margin: var(--space-3) 0 var(--space-4); }
+.doc .meta { color: var(--slate); font-size: 15px; }
+.doc .lede { color: var(--slate); font-size: 19px; line-height: 29px; margin-top: var(--space-6); }
+.doc h2 { font-size: 22px; line-height: 30px; letter-spacing: -0.015em; margin: var(--space-12) 0 var(--space-3); padding-top: var(--space-6); border-top: 1px solid var(--grout); }
+.doc h3 { font-size: 18px; line-height: 26px; margin: var(--space-6) 0 var(--space-2); }
+.doc p + p, .doc p + ul, .doc ul + p { margin-top: var(--space-3); }
+.doc ul { margin: var(--space-3) 0 0; padding-left: 1.2em; }
+.doc li + li { margin-top: var(--space-2); }
+.doc a { color: var(--basil); text-underline-offset: 2px; }
+.doc a:hover { color: var(--basil-press); }
+.doc .ui { font-weight: 600; }
+.contact { margin-top: var(--space-8); padding: var(--space-6); background: var(--tile); border-radius: var(--radius-lg); box-shadow: var(--shadow-lift); }
+.contact p + p { margin-top: var(--space-2); }
+.contact .email { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--ink); }
+
+@media (max-width: 640px) {
+  .wrap { padding: 0 var(--space-4); }
+  .siteheader nav a:not(.btn) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
