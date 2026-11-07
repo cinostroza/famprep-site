@@ -104,10 +104,8 @@
       <p class="label">iPhone beta coming soon</p>
       <h1 style="margin-top: var(--space-4)">What's for dinner?<span>Sorted for the week, sized for everyone.</span></h1>
       <p class="lede">FamPrep plans your family's dinners, writes one grocery list, and tells each person how much to put on their plate, based on their own goal. Kids included, without the calorie talk.</p>
-      <!-- Netlify Forms collects sign-ups (Netlify > Forms > beta). Both forms post to the same list. -->
-      <form class="signup" name="beta" method="POST" data-netlify="true" netlify-honeypot="company">
-        <input type="hidden" name="form-name" value="beta">
-        <input type="hidden" name="source" value="">
+      <!-- Sign-ups go to Zoho Campaigns (list "FamPrep beta"); the script at the end sends both forms. -->
+      <form class="signup" novalidate>
         <p class="hp" aria-hidden="true"><label>Company <input name="company" tabindex="-1" autocomplete="off"></label></p>
         <label for="join-hero">Get an invite to the iPhone beta</label>
         <div class="row">
@@ -181,9 +179,7 @@
       <h2>Save a seat at the table.</h2>
       <p class="prose" style="color: var(--slate)">FamPrep already plans dinner for our own family every week. Leave your email and we'll send you an invite when the iPhone beta opens.</p>
     </div>
-    <form class="signup" name="beta" method="POST" data-netlify="true" netlify-honeypot="company">
-      <input type="hidden" name="form-name" value="beta">
-      <input type="hidden" name="source" value="">
+    <form class="signup" novalidate>
       <p class="hp" aria-hidden="true"><label>Company <input name="company" tabindex="-1" autocomplete="off"></label></p>
       <label for="join-bottom">Your email</label>
       <div class="row">
@@ -202,34 +198,62 @@
   </div>
 </footer>
 <script>
+  // Zoho Campaigns sign-up form "famprep.app beta" (Audience > Forms). These values come from the form's
+  // public embed code; they identify the list, they aren't secrets. Zoho allows requests from famprep.app.
+  const ZOHO = {
+    endpoint: 'https://zgnp-zngp.maillist-manage.com/weboptin.zc',
+    fields: {
+      submitType: 'optinCustomView', emailReportId: '', formType: 'QuickForm', zx: '1384526be', zcvers: '3.0',
+      oldListIds: '', mode: 'OptinCreateView', zcld: '1182083763bf12086', zctd: '1182083763bf11f71',
+      zc_trackCode: 'ZCFORMVIEW', zc_formIx: '3z7a54dfa1885eb494f2699a070d3ddbc64dd176df74bfc56e2b389f30a8eb7546',
+      responseMode: 'inline'
+    },
+    // Field name of the "Source" contact field once it's added to the Zoho form; until then no source is sent.
+    sourceField: null
+  };
   // Where sign-ups come from (utm_source, else the referring site), for the beta's traffic test in docs/positioning.md.
   const params = new URLSearchParams(location.search);
   let source = params.get('utm_source') || '';
   try { if (!source && document.referrer) source = new URL(document.referrer).hostname; } catch (e) {}
+  source = source || 'direct';
+
   document.querySelectorAll('form.signup').forEach(form => {
-    form.elements.source.value = source || 'direct';
+    const note = form.querySelector('.note');
+    const button = form.querySelector('button');
+    const email = form.querySelector('input[type=email]');
+    const fail = message => {
+      form.classList.add('error');
+      note.textContent = message;
+      button.removeAttribute('aria-busy');
+      button.textContent = 'Join the beta';
+    };
     form.addEventListener('submit', async event => {
       event.preventDefault();
-      const note = form.querySelector('.note');
-      const button = form.querySelector('button');
       if (button.getAttribute('aria-busy') === 'true') return;
+      form.classList.remove('error');
+      email.value = email.value.trim();
+      if (!email.checkValidity()) {
+        fail('Enter your full email address, like name@example.com.');
+        email.focus();
+        return;
+      }
       button.setAttribute('aria-busy', 'true');
       button.textContent = 'Joining…';
-      form.classList.remove('error');
-      try {
-        const res = await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(new FormData(form)).toString()
-        });
-        if (!res.ok) throw new Error(res.status);
+      const done = () => {
         form.classList.add('done');
-        note.textContent = "You're on the list. Watch your inbox for the invite.";
+        note.textContent = "You're on the list. We'll email you when the beta opens.";
+      };
+      // Bots fill the hidden "company" field; thank them and send nothing.
+      if (form.querySelector('[name=company]').value) return done();
+      const query = new URLSearchParams({ CONTACT_EMAIL: email.value, ...ZOHO.fields });
+      if (ZOHO.sourceField) query.set(ZOHO.sourceField, source);
+      try {
+        const res = await fetch(`${ZOHO.endpoint}?${query}`, { mode: 'cors' });
+        const reply = await res.json();
+        if (!res.ok || reply.responseType === 'ZCERRORJSON') throw new Error(JSON.stringify(reply));
+        done();
       } catch (e) {
-        form.classList.add('error');
-        note.textContent = "That didn't go through. Please try again in a moment.";
-        button.removeAttribute('aria-busy');
-        button.textContent = 'Join the beta';
+        fail("That didn't go through. Please try again in a moment, or email support@famprep.app.");
       }
     });
   });
