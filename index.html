@@ -250,7 +250,9 @@
       try {
         const res = await fetch(`${ZOHO.endpoint}?${query}`, { mode: 'cors' });
         const reply = await res.json();
-        if (!res.ok || reply.responseType === 'ZCERRORJSON') throw new Error(JSON.stringify(reply));
+        // Zoho answers "Thanks for signing up" even when it discards a submission as spam (spmSubmit: true);
+        // only a reply naming the saved contact (emailid) means the sign-up was kept.
+        if (!res.ok || reply.spmSubmit || !reply.emailid) throw new Error(JSON.stringify(reply));
         done();
       } catch (e) {
         fail("That didn't go through. Please try again in a moment, or email support@famprep.app.");
