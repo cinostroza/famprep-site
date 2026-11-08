@@ -198,15 +198,17 @@
   </div>
 </footer>
 <script>
-  // Zoho Campaigns sign-up form "famprep.app beta" (Audience > Forms). These values come from the form's
-  // public embed code; they identify the list, they aren't secrets. Zoho allows requests from famprep.app.
+  // Zoho Campaigns sign-up form "famprep.app beta" (Audience > Forms). We send what its "No Script" embed code
+  // posts: the same fields, scriptless=yes, and no zc_spmSubmit (Zoho's bot marker, removed on a real submit).
+  // Zoho's script-style request (GET) is discarded as spam from other sites. These values identify the list;
+  // they aren't secrets. Zoho allows requests from famprep.app and replies in JSON.
   const ZOHO = {
     endpoint: 'https://zgnp-zngp.maillist-manage.com/weboptin.zc',
     fields: {
-      submitType: 'optinCustomView', emailReportId: '', formType: 'QuickForm', zx: '1384526be', zcvers: '3.0',
-      oldListIds: '', mode: 'OptinCreateView', zcld: '1182083763bf12086', zctd: '1182083763bf11f71',
-      zc_trackCode: 'ZCFORMVIEW', zc_formIx: '3z7a54dfa1885eb494f2699a070d3ddbc64dd176df74bfc56e2b389f30a8eb7546',
-      responseMode: 'inline'
+      SIGNUP_SUBMIT_BUTTON: 'Join Now', submitType: 'optinCustomView', emailReportId: '', formType: 'QuickForm',
+      zx: '1384526be', zcvers: '3.0', oldListIds: '', mode: 'OptinCreateView', zcld: '1182083763bf12086',
+      zctd: '1182083763bf11f71', zc_trackCode: 'ZCFORMVIEW',
+      zc_formIx: '3z7a54dfa1885eb494f2699a070d3ddbc64dd176df74bfc56e2b389f30a8eb7546', scriptless: 'yes'
     },
     // Field name of the "Source" contact field once it's added to the Zoho form; until then no source is sent.
     sourceField: null
@@ -245,16 +247,16 @@
       };
       // Bots fill the hidden "company" field; thank them and send nothing.
       if (form.querySelector('[name=company]').value) return done();
-      const query = new URLSearchParams({ CONTACT_EMAIL: email.value, ...ZOHO.fields });
-      if (ZOHO.sourceField) query.set(ZOHO.sourceField, source);
+      const body = new URLSearchParams({ CONTACT_EMAIL: email.value, ...ZOHO.fields });
+      if (ZOHO.sourceField) body.set(ZOHO.sourceField, source);
       try {
-        const res = await fetch(`${ZOHO.endpoint}?${query}`, { mode: 'cors' });
+        const res = await fetch(ZOHO.endpoint, { method: 'POST', mode: 'cors', body });
         const reply = await res.json();
-        // Zoho answers "Thanks for signing up" even when it discards a submission as spam (spmSubmit: true);
-        // only a reply naming the saved contact (emailid) means the sign-up was kept.
-        if (!res.ok || reply.spmSubmit || !reply.emailid) throw new Error(JSON.stringify(reply));
+        // Zoho answers "Thanks for signing up" even when it discards a submission as spam (spmSubmit: true).
+        if (!res.ok || reply.spmSubmit || reply.responseType === 'ZCERRORJSON') throw new Error(JSON.stringify(reply));
         done();
       } catch (e) {
+        console.warn('Zoho sign-up failed:', e.message);
         fail("That didn't go through. Please try again in a moment, or email support@famprep.app.");
       }
     });
